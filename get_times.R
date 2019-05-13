@@ -1,3 +1,4 @@
+library(fs)
 library(glue)
 library(here)
 library(tidyverse)
@@ -105,6 +106,8 @@ all_sunsets <-
   map_df(1:12, .f = get_sun_rise_set, return = "sunset")
 
 
+# Write out
+if (!dir_exists("data")) dir_create(here("data"))
 write_csv(all_sunrises, here("data", "sunrises_nyc.csv"))
 write_csv(all_sunsets, here("data", "sunsets_nyc.csv"))
 
