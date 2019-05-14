@@ -74,7 +74,11 @@ get_sun_rise_set <- function(month = 1,
       sunset = 
         sunset %>% 
         map_chr(clean_time),
-      month = month
+      year = as.numeric(year),
+      month = as.numeric(month),
+      day = as.numeric(day),
+      date = lubridate::as_date(glue("{year}-{month}-{day}")),
+      day_of_year = lubridate::yday(date)
     ) %>% 
     select(month, day, everything()) 
   
@@ -100,10 +104,10 @@ get_sun_rise_set <- function(month = 1,
 
 # Get all 12 months
 all_sunrises <- 
-  map_df(1:12, .f = get_sun_rise_set, return = "sunrise")
+  map_df(1:12, .f = get_sun_rise_set, return = "sunrise") 
 
 all_sunsets <- 
-  map_df(1:12, .f = get_sun_rise_set, return = "sunset")
+  map_df(1:12, .f = get_sun_rise_set, return = "sunset") 
 
 
 # Write out
@@ -111,18 +115,3 @@ if (!dir_exists("data")) dir_create(here("data"))
 write_csv(all_sunrises, here("data", "sunrises_nyc.csv"))
 write_csv(all_sunsets, here("data", "sunsets_nyc.csv"))
 
-
-# Get average sunrises and sunsets
-summarise_sun_rise_set <- function(tbl) {
-  tbl %>% 
-    summarise(
-      mean_mins = mean(total_mins, na.rm = TRUE)
-    ) %>% 
-    mutate(
-      hr = (mean_mins/60) %>% floor(), 
-      mn = mean_mins - (hr*60)
-    )
-}
-
-all_sunrises %>% summarise_sun_rise_set()
-all_sunsets %>% summarise_sun_rise_set()
